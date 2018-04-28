@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="pace/pace.js"></script>
+    <link href="pace/themes/black/pace-theme-fill-left.css" rel="stylesheet" />
+    
+    <meta charset='utf-8' />;
+    <title>قرآن کریم</title>
+    <link href="https://fonts.googleapis.com/css?family=Lalezar|Reem+Kufi" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    
+</head>
+
+<body direction="rtl">
+    <script>
+        function createURL() {
+            var pageNumber = $("#pageNum").text();
+            var text = "http://api.alquran.cloud/page/" + pageNumber + "/quran-uthmani ";
+
+            pageInformation(text);
+        }
+
+        function pageInformation(text) {
+            
+            var ourData;
+            var ourRequest = new XMLHttpRequest();
+            ourRequest.open('GET', text);
+            ourRequest.onload = function () {
+                var ourData = JSON.parse(ourRequest.responseText);
+                renderData(ourData)
+
+            };
+            ourRequest.send();
+
+            
+        };
+        function renderData(ourData) {
+            var surahInf = ":شماره ی صفحه" + ourData.data.number;
+            $("#surahNum").text(surahInf);
+            var ayatsNum = ourData.data.ayahs.length;
+            var text = '';
+            var surahNames = [];
+            var line = [];
+            var lineCheck = [];
+            var juzs = [];
+            var hezbs = [];
+            var sajdes = [];
+            $("#sajde").text("");
+            for (i = 0; i < ayatsNum; i++) {
+                var ayeh = ourData.data.ayahs[i].text;
+                var numberInSurah=ourData.data.ayahs[i].numberInSurah;
+                ayeh=ayeh+numberInSurah;
+                var surahName = ourData.data.ayahs[i].surah.name;
+                var juz = ourData.data.ayahs[i].juz;
+                var hezb = ourData.data.ayahs[i].hizbQuarter;
+                var sajde = ourData.data.ayahs[i].sajda;
+                if (sajde != false) {
+                    if (ourData.data.ayahs[i].sajda.obligatory == true) {
+                        $("#sajde").text("****سجده واجب*****");
+                    }
+                    else {
+                        $("#sajde").text("****سجده مستحب*****");
+                    }
+
+                }
+                //     // if(ourData.data.ayahs[i].sajda.obligatory==true){
+                //     //     $("#sajde").text("****سجده واجب****")
+                //     // }
+                //     // else{ $("#sajde").text("****سجده مستحب ****")
+
+                //     // }
+
+
+                if (juzs.indexOf(juz) == -1) {
+                    juzs[juzs.length] = juz;
+                }
+                
+                if (surahName != lineCheck && i > 1) {
+                    ayeh = "<hr>" + ayeh;
+                }
+                lineCheck = surahName;
+                if (surahNames.indexOf(surahName) == -1) {
+                    surahNames[surahNames.length] = surahName;
+                }
+                if (hezbs.indexOf(hezb) == -1) {
+                    hezbs[hezbs.length] = hezb;
+                }
+
+                text += ayeh + "<br>";
+            }
+            
+            $("#page").html(text)
+            $("#surahName").html(surahNames.join(" و "));
+            $("#juz").html(juzs.join(" و "));
+            $("#hezb").html(hezbs.join(" و "));
+            //var hezbNumb="شماره حزب:";
+            //hezbNumb=hezbNumb.bold();
+            //$("#hezb").text(hezbNumb) ;
+
+            //  if (sajdes.indexOf(true) !=-1){
+            //      $("#sajde").text("****سجده دار****")
+            //  }
+
+        };
+        $(document).ready(function () {
+            var num = parseInt($("#pageNum").text());
+            createURL();
+
+        });
+        $(document).ready(function () {
+            $("#btnPre").click(function () {
+
+                var num = parseInt($("#pageNum").text());
+                if (num > 1) {
+                    num = num - 1;
+                    $("#pageNum").text(num);
+                    $("#btnNext").show();
+                    if (num == 1) {
+                        $("#btnPre").hide();
+                    }
+                    createURL();
+                }
+
+            });
+
+            $("#btnNext").click(function () {
+
+                var num = parseInt($("#pageNum").text());
+                if (num <= 603) {
+                    num += 1;
+                    $("#pageNum").text(num);
+                    if (num > 1) {
+                        $("#btnPre").show();
+                    }
+                    if (num == 604) {
+                        $("#btnNext").hide()
+                    }
+                    createURL();
+
+                }
+            });
+            $("#inputNumber").change(function(){
+                var inputNum=$("#inputNumber").val();
+                $("#pageNum").text(inputNum <= 604 ? inputNum : 604);
+                createURL();
+            });
+        });
+    </script>
+
+    <section id="header">
+        <h1 style="font-family: 'Lalezar', cursive;font-size:40pt;color:red;text-align:center">قرآن کریم </h1>
+    </section>
+    <section id="content">
+        <table style="width:100%;direction:rtl">
+            <tr>
+                <td style="background-color: blueviolet; width:30%; direction:rtl; vertical-align: top">
+                    <b>نام سوره ها: </b>     <span id="surahNum">   </span>
+                    <span id="surahName">نام سوره </span><br>
+                    <b>شماره ی جزء</b>
+                    <span id="juz">جزء </span>
+                    <br>
+                    <b>شماره حزب: </b>
+                    <span id="hezb">?</span>
+                    <p id="sajde"></p><br>
+                    <p>شماره ی صفحه ی مورد نظر را وارد کنید</p><input id="inputNumber" type="number" max="604">
+                   
+
+
+                </td>
+                <td style="background-color: rgb(0, 255, 191); width:70%">
+                    <p id="page" style="font-family: 'Reem Kufi', sans-serif;font-size:xx-large;">
+                    </p>
+                </td>
+            </tr>
+        </table>
+
+
+    </section>
+    <section id="footer" style="text-align:center">
+        <!-- Navigator -->
+
+        <table style="text-align:center;width:100%">
+            <tr>
+                <td style="background-color:blue; width:30%">
+                    <button id="btnPre">
+                        prev
+                    </button>
+
+                </td>
+
+
+                <td style="background-color:rgb(255, 238, 0); width:30%">
+                    <p id="pageNum">597</p>
+                </td>
+
+                <td style="background-color:green;width:30%">
+                    <button id="btnNext">
+                        next
+                    </button>
+
+                </td>
+
+            </tr>
+        </table>
+    </section>
+    <p id="newId">POSITION of new text</p>
+
+
+</body>
+
+</html>
