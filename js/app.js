@@ -1,7 +1,7 @@
 
 function createURL() {
     var pageNumber = $("#pageNum").val();
-    var text = "http://api.alquran.cloud/page/" + pageNumber + "/quran-uthmani ";
+    var text = "https://api.alquran.cloud/page/" + pageNumber + "/quran-uthmani ";
 
     pageInformation(text);
 }
